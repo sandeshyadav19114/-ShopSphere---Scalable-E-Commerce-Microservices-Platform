@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: payment-service, namespace: shopsphere }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: payment-service } }
+  template:
+    metadata: { labels: { app: payment-service } }
+    spec:
+      containers:
+        - name: payment-service
+          image: ${ECR_REGISTRY}/shopsphere/payment-service:${IMAGE_TAG}
+          ports: [ { containerPort: 8085 } ]
+          envFrom: [ { configMapRef: { name: shopsphere-config } }, { secretRef: { name: shopsphere-secrets } } ]
+          resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { cpu: "1", memory: 1Gi } }
+          readinessProbe: { httpGet: { path: /actuator/health, port: 8085 }, initialDelaySeconds: 40, periodSeconds: 10 }
+          livenessProbe: { httpGet: { path: /actuator/health, port: 8085 }, initialDelaySeconds: 70, periodSeconds: 15 }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: payment-service, namespace: shopsphere }
+spec: { selector: { app: payment-service }, ports: [ { port: 8085, targetPort: 8085 } ] }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: { name: payment-service, namespace: shopsphere }
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: payment-service }
+  minReplicas: 2
+  maxReplicas: 8
+  metrics: [ { type: Resource, resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } } } ]

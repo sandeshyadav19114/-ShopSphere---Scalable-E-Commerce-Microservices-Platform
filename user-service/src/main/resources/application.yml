@@ -1,0 +1,30 @@
+server:
+  port: 8081
+spring:
+  config:
+    import: classpath:application-oauth.yml
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/shopsphere_user?createDatabaseIfNotExist=true
+    username: ${DB_USER:root}
+    password: ${DB_PASS:root}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+jwt:
+  secret: ${JWT_SECRET:change-me-change-me-change-me-change-me-32b}
+frontend:
+  url: ${FRONTEND_URL:http://localhost:3000}

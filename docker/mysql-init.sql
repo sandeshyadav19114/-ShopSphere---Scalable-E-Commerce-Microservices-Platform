@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS shopsphere_user; CREATE DATABASE IF NOT EXISTS shopsphere_product;
+CREATE DATABASE IF NOT EXISTS shopsphere_order; CREATE DATABASE IF NOT EXISTS shopsphere_payment; CREATE DATABASE IF NOT EXISTS shopsphere_inventory;

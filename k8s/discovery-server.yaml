@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: discovery-server, namespace: shopsphere }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: discovery-server } }
+  template:
+    metadata: { labels: { app: discovery-server } }
+    spec:
+      containers:
+        - name: discovery-server
+          image: ${ECR_REGISTRY}/shopsphere/discovery-server:${IMAGE_TAG}
+          ports: [ { containerPort: 8761 } ]
+          envFrom: [ { configMapRef: { name: shopsphere-config } }, { secretRef: { name: shopsphere-secrets } } ]
+          resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { cpu: "1", memory: 1Gi } }
+          readinessProbe: { httpGet: { path: /actuator/health, port: 8761 }, initialDelaySeconds: 40, periodSeconds: 10 }
+          livenessProbe: { httpGet: { path: /actuator/health, port: 8761 }, initialDelaySeconds: 70, periodSeconds: 15 }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: discovery-server, namespace: shopsphere }
+spec: { selector: { app: discovery-server }, ports: [ { port: 8761, targetPort: 8761 } ] }
+---

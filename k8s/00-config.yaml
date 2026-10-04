@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Namespace
+metadata: { name: shopsphere }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: shopsphere-config, namespace: shopsphere }
+data:
+  DB_HOST: shopsphere-db.xxxxxxxx.ap-south-1.rds.amazonaws.com   # RDS MySQL
+  REDIS_HOST: shopsphere-redis.xxxxxx.cache.amazonaws.com        # ElastiCache
+  KAFKA_SERVERS: b-1.shopsphere.xxxx.kafka.ap-south-1.amazonaws.com:9092  # MSK
+  EUREKA_URL: http://discovery-server:8761/eureka
+---
+# Create real secrets with: kubectl -n shopsphere create secret generic shopsphere-secrets --from-env-file=.env
+apiVersion: v1
+kind: Secret
+metadata: { name: shopsphere-secrets, namespace: shopsphere }
+stringData: { JWT_SECRET: change-me, DB_USER: admin, DB_PASS: change-me, RAZORPAY_KEY_ID: x, RAZORPAY_KEY_SECRET: x, RAZORPAY_WEBHOOK_SECRET: x, GOOGLE_CLIENT_ID: x, GOOGLE_CLIENT_SECRET: x }
